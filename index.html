@@ -1,524 +1,1089 @@
 <!doctype html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="utf-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>IMPACTA Business Solutions — Growth Partner for Small Businesses in Ocala</title>
+
   <meta name="description" content="IMPACTA Business Solutions — Logo & brand design, mobile-first websites, lead generation, appointment setting, email & SMS marketing, and eCommerce management for local businesses in Ocala, FL." />
+
   <meta name="keywords" content="lead generation, appointment setting, logo design, web design, email marketing, SMS marketing, eCommerce, Ocala, small business growth" />
+
   <link rel="canonical" href="https://impactabusiness.solutions/" />
+
   <link rel="icon" href="img/favicon-2025.png" sizes="any" type="image/png">
+
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
+
 
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
+
+
   <meta property="og:site_name" content="IMPACTA Business Solutions" />
+
   <meta property="og:title" content="IMPACTA Business Solutions — Growth Partner for Small Businesses" />
+
   <meta property="og:description" content="We help local businesses grow with branding, web design, lead generation, and ongoing digital marketing." />
+
   <meta property="og:type" content="website" />
+
   <meta property="og:url" content="https://impactabusiness.solutions/" />
+
   <meta property="og:image" content="https://impactabusiness.solutions/og-image.png" />
 
+
+
   <meta name="twitter:card" content="summary_large_image" />
+
   <meta name="twitter:title" content="IMPACTA Business Solutions — Growth Partner for Small Businesses" />
+
   <meta name="twitter:description" content="Branding, websites, lead generation & more — done for small businesses." />
+
   <meta name="twitter:image" content="https://impactabusiness.solutions//og-image.png" />
 
+
+
   <script type="application/ld+json">
+
   {
+
     "@context":"https://schema.org",
+
     "@type":"ProfessionalService",
+
     "name":"IMPACTA Business Solutions Inc.",
+
     "url":"https://impactabusiness.solutions/",
+
     "logo":"/img/impacta.png",
+
     "telephone":"+1-352-389-1832",
+
     "priceRange":"$99 - $5000",
+
     "description":"IMPACTA Business Solutions offers logo & brand design, mobile-first websites, lead generation, appointment setting, email & SMS marketing, and eCommerce management.",
+
     "address":{
+
       "@type":"PostalAddress",
+
       "streetAddress":"Ocala Area (service area)",
+
       "addressLocality":"Ocala",
+
       "addressRegion":"FL",
+
       "postalCode":"34470",
+
       "addressCountry":"US"
+
     },
+
     "areaServed":"Ocala, FL and remote clients",
+
     "sameAs":[
+
       "https://www.facebook.com/yourpage",
+
       "https://www.linkedin.com/company/yourcompany",
+
       "https://twitter.com/yourhandle"
+
     ]
+
   }
+
   </script>
+
+
 
   <script>
+
     document.addEventListener('DOMContentLoaded', function() {
+
       const params = new URLSearchParams(window.location.search);
+
       if (params.has('utm_source')) {
+
         const utmSource = document.getElementById('utm_source');
+
         if (utmSource) utmSource.value = params.get('utm_source');
+
         const utmMedium = document.getElementById('utm_medium');
+
         if (utmMedium) utmMedium.value = params.get('utm_medium');
+
         const utmCampaign = document.getElementById('utm_campaign');
+
         if (utmCampaign) utmCampaign.value = params.get('utm_campaign');
+
       }
+
     });
+
   </script>
 
+
+
   <style>
+
     :root{
+
       --brand:#0C62AB;
+
       --white:#ffffff;
+
       --muted:#6b7280;
+
       --radius:14px;
+
       --container-padding:20px;
+
       --max-width:1100px;
+
       --nav-height:72px;
+
     }
+
     /* Base */
+
     *{box-sizing:border-box }
+
     html{scroll-padding-top: 110px;} /* Adjust this value as needed */
+
     html,body{height:100%}
+
     body{
+
       margin:0;
+
       font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
       color:#0b1220;
+
       background:linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+
       -webkit-font-smoothing:antialiased;
+
       -moz-osx-font-smoothing:grayscale;
+
       line-height:1.45;
+
       -webkit-tap-highlight-color: rgba(0,0,0,0);
+
     }
+
     a{color:var(--brand); text-decoration:none}
+
     img{max-width:100%;height:auto;display:block}
+
     .container{max-width:var(--max-width);margin:0 auto;padding:var(--container-padding)}
+
     /* Header */
+
     header{background:var(--white);border-bottom:1px solid #e6eef8;position:sticky;top:0;z-index:40;}
+
     .nav{
+
       display:flex;align-items:center;justify-content:space-between;
+
       padding-top: 12px;
+
       padding-bottom: 12px;
+
     }
+
     .brand{display:flex;gap:12px;align-items:center}
+
     .brand a {
+
         flex-shrink: 0;
+
     }
+
+    /* MODIFIED: Base style for all images in .brand, then override with specific classes */
     .brand img{height:80px; width:auto; background-color: transparent;}
+    /* NEW: Explicitly define desktop logo size */
+    .logo-desktop { height: 80px; width: auto; } 
+    /* NEW: Hide the mobile logo by default (desktop view) */
+    .logo-mobile { display: none; }
+
+
     .brand-name{font-size:18px;margin:0;color:var(--brand);letter-spacing:-0.2px}
+
     .nav-actions{display:flex;gap:8px;align-items:center}
+
     .btn{
+
       background:var(--brand);color:var(--white);padding:10px 14px;border-radius:10px;border:0;font-weight:600;cursor:pointer;
+
       box-shadow:0 6px 18px rgba(12,98,171,0.12);
+
       transition: all 0.2s ease-in-out;
+
     }
+
     .btn:hover {
+
         transform: translateY(-2px);
+
         box-shadow: 0 8px 25px rgba(12,98,171,0.2);
+
     }
+
     .btn-outline {
+
         background:transparent;
+
       color:var(--brand);
+
       padding:8px 12px;
+
       border-radius:10px;
+
       border:2px solid var(--brand);
+
       font-weight:600; 
+
       transition: all 0.2s ease-in-out;
+
     }
+
     .btn-outline:hover {
+
         background: var(--brand);
+
         color: var(--white);
+
     }
+
     
+
     /* === HERO SECTION STYLES === */
+
     .hero {
+
         position: relative; 
+
         overflow: hidden; 
+
         padding: 64px 0;
+
     }
+
     .hero-video-bg {
+
         position: absolute;
+
         top: 50%;
+
         left: 50%;
+
         min-width: 100%;
+
         min-height: 100%;
+
         width: auto;
+
         height: auto;
+
         object-fit: cover;
+
         transform: translate(-50%, -50%);
+
         z-index: -2;
+
     }
+
     .hero-overlay {
+
         position: absolute;
+
         top: 0;
+
         left: 0;
+
         width: 100%;
+
         height: 100%;
+
         background-color: rgba(11, 18, 32, 0);
+
         z-index: -1;
+
     }
+
     .hero-grid{display:grid;gap:24px;align-items:center; position: relative; z-index: 1;}
+
     
+
     .hero-copy {
+
         background: var(--white);
+
         padding: 24px;
+
         border-radius: 12px;
+
         box-shadow: 0 10px 25px hsla(0, 0%, 0%, 0.25);
+
     }
+
     .hero-copy h1{font-size:28px;margin:0 0 8px;line-height:1.05; color: var(--brand);}
+
     .hero-copy h1 .muted { color: var(--muted); }
+
     .hero-copy p{margin:0 0 16px; color: #0b1220;}
+
     .hero-copy .small { color: #0b1220; }
+
     .hero-cta{display:flex;gap:10px;flex-wrap:wrap}
 
+
+
     .hero-card{
+
         background: var(--brand);
+
         padding: 20px;
+
         border-radius:12px;
+
         display: inline-block; /* Add this line */
+
         margin-bottom: 8px;   /* Add this line */
+
         box-shadow: 0 10px 25px hsla(0, 0%, 0%, 0.493);
+
         padding-bottom: 28px; /* This adds the extra space */
+
     }
+
     .hero-card h2, .hero-card div, .hero-card p { color: var(--white); }
+
     .hero-card .small.muted { color: #d1d5db; }
+
     .hero-card .btn {
+
       background: transparent;
+
       border: 2px solid var(--white);
+
       color: var(--white);
+
       margin-bottom: 20px;
+
     }
+
     .hero-card .btn:hover {
+
       background: var(--white);
+
       color: var(--brand);
+
     }
+
+
 
     /* Grids & Cards */
+
     .section-spacing {
+
         padding-top: 48px;
+
         padding-bottom: 48px;
+
     }
+
     .grid-3{display:grid;grid-template-columns:1fr;gap:24px}
+
     .service{
+
         background:var(--white);
+
         padding:24px;
+
         border-radius:var(--radius);
+
         border:1px solid #e6eef8;
+
         box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+
     }
+
     .service:hover {
+
         transform: translateY(-4px);
+
         box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+
     }
+
     .service h3{margin:0 0 8px;font-size:18px;color:var(--brand)}
+
     .service p{margin:0;color:var(--muted);font-size:15px}
+
     
+
     .pricing-grid{display:grid;grid-template-columns:1fr;gap:24px}
+
     .price-card{
+
         background:linear-gradient(180deg,#ffffff,#fbfdff);
+
         padding:24px;
+
         border-radius:var(--radius);
+
         border:1px solid #e6f0fb;
+
         box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+
     }
+
     .price-card:hover {
+
         transform: translateY(-4px);
+
         box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+
     }
+
     .price-card h4{margin:0 0 8px;color:var(--brand)}
+
     .price {font-size:22px;font-weight:700;margin:6px 0}
+
     .features-list{margin:12px 0 0;padding:0;list-style:none;color:var(--muted);font-size:14px;display:grid;gap:8px}
+
     
+
     .testimonial-grid {
+
         display:grid;
+
         gap:24px;
+
     }
+
     .testimonial{
+
         background:#ffffff;
+
         padding:24px;
+
         border-radius:var(--radius);
+
         border:1px solid #eef4fb;
+
         box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+
     }
+
     .testimonial:hover {
+
         transform: translateY(-4px);
+
         box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+
     }
+
     .testimonial p{margin:0;color:var(--muted)}
+
     
+
     .contact-card{
+
         background:linear-gradient(180deg,#ffffff,#fbfdff);
+
         padding:24px;
+
         border-radius:var(--radius);
+
         border:1px solid #e6f0fb;
+
         box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+
     }
+
     
+
     /* Form Elements */
+
     input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #e2e8f0;margin-top:8px;font-size:14px}
+
     label{font-weight:600;font-size:13px; margin-top: 12px; display: inline-block;}
+
     .small{font-size:13px;color:var(--muted)}
+
     footer{padding:18px 0;color:var(--muted);font-size:14px;border-top:1px solid #f1f6fb;margin-top:24px}
+
     
+
     /* === RESPONSIVE LAYOUTS === */
+
     @media (max-width: 829px) {
+
         .brand .small.muted { display: none; }
+
     }
+
     @media (max-width: 500px) {
-      .nav { flex-direction: column; gap: 16px; padding-top: 16px; padding-bottom: 16px; }
-      .brand img { height: 60px; }
+
+      .nav { 
+
+        flex-direction: column; 
+
+        gap: 16px; 
+
+        padding-top: 16px; 
+
+        padding-bottom: 16px;
+
+        align-items: center; 
+
+      }
+
+      
+      .brand { 
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Logo Swap and Sizing */
+      .logo-desktop { display: none; }
+      .logo-mobile { 
+          display: block; 
+          height: 60px; /* Adjust size for mobile view */
+          width: auto;
+      }
+      
+      /* Button Stack and Full Width */
+      .nav-actions {
+          flex-direction: column; 
+          width: 100%; 
+      }
+      .nav-actions .btn, .nav-actions .btn-outline {
+          width: 100%; 
+          text-align: center;
+      }
     }
+
     @media(min-width:720px){
+
       .hero-grid{grid-template-columns:1fr 420px;align-items:center;gap:28px}
+
       .grid-3{grid-template-columns:repeat(2,1fr)}
+
       .pricing-grid{grid-template-columns:repeat(2,1fr)}
+
     }
+
     @media(min-width:980px){
+
       .container{padding:28px}
+
       .brand-name{font-size:20px}
+
       .hero-copy h1{font-size:36px}
+
       .grid-3, .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+
     }
+
     
+
     /* small helpers */
+
     .muted{color:var(--muted)}
+
     .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f2f7fb;color:var(--brand);font-weight:700;font-size:13px}
+
     .hero-copy .pill { margin-bottom: 12px; }
+
     .trust-pill{font-size:13px; color:var(--brand); border: 1px solid rgba(12,98,171,0.1); padding: 4px 8px; border-radius: 6px; font-weight: 600;}
+
     .inline-icon{height:20px;width:20px;vertical-align:middle;margin-right:8px}
+
   </style>
 
+
+
 </head>
+
 <body>
+
   <header>
+
     <div class="container nav" role="navigation" aria-label="Main navigation">
+
       <div class="brand">
+
         <a href="#">
             <img 
                 src="img/logo-main-2025.png" 
                 alt="IMPACTA Business Solutions Logo - Growth Partner" 
+                class="logo-desktop"
+            />
+            <img 
+                src="img/logo-mobile-2025.png" 
+                alt="IMPACTA Mobile Logo" 
+                class="logo-mobile"
             />
         </a>
+
         <div class="small muted">Growth partner for small businesses</div>
+
       </div>
+
+
 
       <div class="nav-actions">
+
         <a class="btn-outline" style="font-weight: bold;" href="#services">Services</a>
+
         <a class="btn" style="font-weight: bold;" href="#contact">Book a Call</a>
+
       </div>
+
     </div>
+
   </header>
+
   <section class="hero" aria-labelledby="hero-heading">
+
     <video autoplay loop muted playsinline class="hero-video-bg">
+
       <source src="/mp4/hero-bg.mp4" type="video/mp4">
+
       Your browser does not support the video tag.
+
     </video>
+
     <div class="hero-overlay"></div>
+
     <div class="container">
+
       <div class="hero-grid">
+
         <div class="hero-copy">
+
           <span class="pill">Locally Owned and Operated in Ocala, FL</span>
+
           <h1 id="hero-heading">Accelerate growth. Multiply impact. <span class="muted">— Growth Partner for Small Businesses in Ocala</span></h1>
+
           <p>IMPACTA helps small businesses get visible, capture leads, and convert customers — with branding, mobile-first websites, lead generation, appointment setting, and automated email & SMS campaigns.</p>
 
+
+
           <div class="hero-cta" role="group" aria-label="Primary actions">
+
             <a class="btn" href="#contact">Get a Free Growth Call</a>
+
             <a class="btn-outline" href="#pricing">View Pricing</a>
+
           </div>
+
+
 
           <ul style="margin:16px 0 0;padding:0;list-style:none;display:flex;gap:10px;flex-wrap:wrap">
+
             <li class="small">✅ Fast turnaround</li>
+
             <li class="small">✅ Transparent pricing</li>
+
             <li class="small">✅ Proven templates for local ads</li>
+
           </ul>
+
         </div>
+
+
 
         <aside class="hero-card" aria-labelledby="cta-card-heading"style="max-width:500px;">
+
           <h2 id="cta-card-heading" style="margin:0 0 8px;">Starter Logo Special</h2>
+
           <div style="font-weight:700;font-size:20px">$99 <span class="small muted" style="font-weight:500">— delivered in 72 hours</span></div>
+
           <p class="small" style="margin-top:10px; margin-bottom: 24px;">Perfect for local businesses who need a fast, professional brand start.</p>
+
           <div>
+
             <a class="btn" href="#contact" style="margin-bottom: 20px;">Claim $99 Logo</a>
+
           </div>
+
         </aside>
+
       </div>
+
     </div>
+
   </section>
 
+
+
   <main class="container" id="main">
+
     <section id="services" class="section-spacing" aria-labelledby="services-heading">
+
       <h2 id="services-heading" style="text-align: center; margin:0 0 24px">What we do</h2>
+
       <div class="grid-3">
+
         <article class="service" aria-labelledby="svc-branding">
+
           <h3 id="svc-branding">Logo & Brand Design</h3>
+
           <p>Create a memorable visual identity — fast, affordable, and optimized for web & social.</p>
+
         </article>
+
+
 
         <article class="service" aria-labelledby="svc-web">
+
           <h3 id="svc-web">Website Design & Optimization</h3>
+
           <p>Mobile-first, conversion-focused websites with SEO fundamentals built-in for local searches.</p>
+
         </article>
+
+
 
         <article class="service" aria-labelledby="svc-leads">
+
           <h3 id="svc-leads">Lead Generation & Appointment Setting</h3>
+
           <p>Targeted campaigns, qualified lead delivery, and booked appointments so your clients close more deals.</p>
+
         </article>
+
+
 
         <article class="service" aria-labelledby="svc-email">
+
           <h3 id="svc-email">Email & SMS Marketing</h3>
+
           <p>Automated sequences that nurture leads, recover cart abandonments, and drive repeat business.</p>
+
         </article>
+
+
 
         <article class="service" aria-labelledby="svc-ecom">
+
           <h3 id="svc-ecom">eCommerce Management</h3>
+
           <p>Shopify & marketplace setup, product catalog optimization, and ad funnels that convert.</p>
+
         </article>
+
+
 
         <article class="service" aria-labelledby="svc-automation">
+
           <h3 id="svc-automation">Automations & Integrations</h3>
+
           <p>Connect forms → CRM → email → calendars with automation to reduce manual work and speed lead response.</p>
+
         </article>
+
       </div>
+
     </section>
+
+
 
     <section id="pricing" class="section-spacing" aria-labelledby="pricing-heading">
+
       <h2 id="pricing-heading" style="text-align: center; margin:0 0 12px">Pricing</h2>
+
       <p class="small muted" style="margin:0 0 24px; text-align: center;">Simple, transparent tiers — start small and scale up as results come in.</p>
 
+
+
       <div class="pricing pricing-grid" role="list">
+
         <div class="price-card" role="listitem" aria-labelledby="price-starter">
+
           <h4 id="price-starter">Starter</h4>
+
           <div class="price">$99 — $750 <span class="small muted" style="font-weight:500">one-time</span></div>
+
           <ul class="features-list">
+
             <li>✅ $99 Logo — 72 hr delivery</li>
+
             <li>✅ Basic 1–3 page website ($499–$750)</li>
+
             <li>✅ Email/SMS campaign setup</li>
+
             <li class="small muted">Perfect to get online quickly</li>
+
           </ul>
+
           <div style="margin-top:24px">
+
             <a class="btn" href="#contact">Start with Starter</a>
+
           </div>
+
         </div>
+
+
 
         <div class="price-card" role="listitem" aria-labelledby="price-growth" style="box-shadow:0 12px 30px rgba(12,98,171,0.08); transform: translateY(-8px);">
+
           <h4 id="price-growth">Growth</h4>
+
           <div class="price">$750 — $1,500<span class="small muted" style="font-weight:500">/month</span></div>
+
           <ul class="features-list">
+
             <li>✅ Lead generation & appointment setting</li>
+
             <li>✅ Ongoing email & SMS campaigns</li>
+
             <li>✅ Website management & SEO</li>
+
             <li>✅ Monthly performance reports</li>
+
           </ul>
+
           <div style="margin-top:24px">
+
             <a class="btn" href="#contact">Book Growth Review</a>
+
           </div>
+
         </div>
+
+
 
         <div class="price-card" role="listitem" aria-labelledby="price-pro">
+
           <h4 id="price-pro">Pro — Full Partnership</h4>
+
           <div class="price">$2,500 — $5,000+<span class="small muted" style="font-weight:500">/month</span></div>
+
           <ul class="features-list">
+
             <li>✅ End-to-end growth system</li>
+
             <li>✅ Ads management (Google/Facebook)</li>
+
             <li>✅ Analytics dashboard & strategy</li>
+
             <li>✅ Dedicated strategist</li>
+
           </ul>
+
           <div style="margin-top:24px">
+
             <a class="btn" href="#contact">Become a Pro Partner</a>
+
           </div>
+
         </div>
+
       </div>
+
+
 
       <div style="margin-top:12px; text-align: center;" class="muted small">Need a custom package? We craft solutions for specific goals — <a href="#contact">book a free call</a>.</div>
+
     </section>
+
+
 
     <section class="section-spacing" aria-labelledby="testimonials-heading">
+
       <h2 id="testimonials-heading" style="text-align: center; margin:0 0 24px">What clients say</h2>
+
       <div class="testimonial-grid">
+
         <div class="testimonial">
+
           <strong>Ocala Roofing Co.</strong>
+
           <p>"IMPACTA got our phone ringing with qualified leads — within 2 weeks we had appointments booked and closed." <span class="small muted">— J. Martinez</span></p>
+
         </div>
+
         <div class="testimonial">
+
           <strong>Green Line HVAC</strong>
+
           <p>"Quick logo, fast website, and clear reporting. Their system actually made my sales calls easier." <span class="small muted">— S. Patel</span></p>
+
         </div>
+
       </div>
+
     </section>
+
+
 
     <section class="section-spacing" aria-labelledby="contact-heading">
+
       <h2 id="contact-heading" style="text-align: center; margin:0 0 24px">Get in touch</h2>
 
+
+
       <div style="display:grid;gap:12px;">
+
         <div id="contact" class="contact-card">
+
           <p class="small muted">Schedule a free growth consultation — we’ll audit your current channels and show quick wins.</p>
 
+
+
           <div style="margin-bottom: 12px; display:flex; gap: 10px; flex-wrap: wrap;">
+
               <span class="trust-pill">✅ No Obligation</span>
+
               <span class="trust-pill">🔒 Secure Form</span>
+
               <span class="trust-pill">⭐ Rated 5-Stars</span>
+
           </div>
+
+
 
           <form action="https://formspree.io/f/mblzeglb" method="POST" aria-label="Contact form">
+
             <label for="name">Full name</label>
+
             <input id="name" name="name" type="text" placeholder="Jane Doe" required />
 
+
+
             <label for="email">Email</label>
+
             <input id="email" name="email" type="email" placeholder="name@business.com" required />
 
+
+
             <label for="phone">Phone</label>
+
             <input id="phone" name="phone" type="tel" placeholder="+1 (352) 555-0123" />
 
+
+
             <label for="service">Service interested in</label>
+
             <select id="service" name="service">
+
               <option>Logo & Brand Design</option>
+
               <option>Website Design</option>
+
               <option>Lead Generation</option>
+
               <option>Email & SMS Marketing</option>
+
               <option>Full Growth Partnership</option>
+
             </select>
 
+
+
             <label for="message">Tell us about your business</label>
+
             <textarea id="message" name="message" rows="4" placeholder="Briefly describe your goals..."></textarea>
 
+
+
             <input type="hidden" name="utm_source" id="utm_source" value="" />
+
             <input type="hidden" name="utm_medium" id="utm_medium" value="" />
+
             <input type="hidden" name="utm_campaign" id="utm_campaign" value="" />
 
+
+
             <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+
               <button type="submit" class="btn">Request Free Audit</button>
+
               <a class="btn-outline" href="tel:+13523891832">Call: (352) 389-1832</a>
+
             </div>
+
             <div class="small muted" style="margin-top:8px">We respect your privacy. By contacting us you agree to our <a href="/privacy">Privacy Policy</a>.</div>
+
           </form>
+
         </div>
+
       </div>
+
     </section>
+
+
+
   </main>
 
+
+
   <footer class="container" role="contentinfo">
+
     <div style="display:flex;flex-direction:column;gap:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-        <div>
-          <strong>IMPACTA Business Solutions Inc.</strong><br />
-          <span class="small muted"> Owned and Operated in Ocala, FL, USA</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <a class="small muted" href="mailto:support@impactabusiness.solutions">support@impactabusiness.solutions</a>
-          <a class="small muted" href="tel:+13523891832">(352) 389-1832</a>
-        </div>
-      </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div class="small muted">© 2025 IMPACTA Business Solutions Inc. All rights reserved.</div>
-          <div style="display:flex;gap:12px">
-              <a class="small muted" href="/privacy">Privacy Policy</a>
-              <a class="small muted" href="/terms">Terms of Service</a>
-          </div>
+
+        <div>
+
+          <strong>IMPACTA Business Solutions Inc.</strong><br />
+
+          <span class="small muted"> Owned and Operated in Ocala, FL, USA</span>
+
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center">
+
+          <a class="small muted" href="mailto:support@impactabusiness.solutions">support@impactabusiness.solutions</a>
+
+          <a class="small muted" href="tel:+13523891832">(352) 389-1832</a>
+
+        </div>
+
       </div>
+
+
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+
+          <div class="small muted">© 2025 IMPACTA Business Solutions Inc. All rights reserved.</div>
+
+          <div style="display:flex;gap:12px">
+
+              <a class="small muted" href="/privacy">Privacy Policy</a>
+
+              <a class="small muted" href="/terms">Terms of Service</a>
+
+          </div>
+
+      </div>
+
     </div>
+
   </footer>
+
 </body>
-</html>
+
+</html>d
