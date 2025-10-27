@@ -64,12 +64,12 @@
           <input id="phone" name="phone" type="tel" placeholder="+1 (352) 555-0123" />
 
           <label for="service">Service interested in</label>
-          <select id="service" name="service" required>
-            <option value="">-- Please select --</option>
-            <Route path="diagnostic_ppa" element={<DiagnosticPPA />} />
-            <option value="pro_partnership">Pro - Full Partnership</option>
-            <option value="general_inquiry">General Inquiry</option>
-          </select>
+            <select id="service" name="service" required>
+              <option value="">-- Please select --</option>
+              <option value="diagnostic_ppa">Diagnostic PPA</option>
+              <option value="pro_partnership">Pro - Full Partnership</option>
+              <option value="general_inquiry">General Inquiry</option>
+            </select>
 
           <label for="message">What is your biggest revenue challenge?</label>
           <textarea id="message" name="message" rows="4" placeholder="e.g., 'We get leads but can't convert them', 'Our appointments are low-quality'..." required></textarea>
@@ -113,6 +113,7 @@
 </body>
 
 </html>
+
 
 
 
