@@ -150,8 +150,8 @@ footer{padding:18px 0;color:var(--muted);font-size:14px;border-top:1px solid #f1
   gap: 32px;
 }
 
-/* This makes the grid stack to 1 column on mobile */
-@media (max-width: 768px) {
+/* This makes the grid stack to 1 column on small screens */
+@media (max-width: 550px) {
   .diagnostic-grid {
     grid-template-columns: 1fr;
   }
