@@ -19,7 +19,29 @@
 
   <main class="container" id="main" style="padding-top: 48px;">
         <div style="display: flex; justify-content: center;">
-     <div id='product-component-1762192035969'></div>
+        
+<section class="container section-spacing">
+  <div class="diagnostic-grid">
+    <div>
+      <h1 class="pill">Pipeline Diagnostic & SQA Blueprint</h1>
+      <h2 style="color: var(--brand); margin-bottom: 12px;">$350 Diagnostic Appointment</h2>
+      <p>Stop wasting time and money on tire-kickers, no-shows, and leads that never close. Our mandatory $350 Pipeline Diagnostic is the first step to building a high-performance sales engine.</p>
+      <p>This isn't a "strategy call". It's a 45-minute, 1-on-1 working session where we find the exact revenue leaks in your sales process and deliver a tangible blueprint for fixing them.</p>
+      <ul class="features-list">
+        <li><strong>Revenue Leak Analysis:</strong> We audit your entire sales process (from web form to close) to identify the exact bottleneck where you are losing money.</li>
+        <li><strong>SQA Definition:</strong> We work with you to define your perfect Sales-Qualified Appointment (SQA), so your team only speaks to high-value, pre-vetted prospects.</li>
+        <li><strong>Custom ROI Projection:</strong> We deliver a one-page report that calculates the precise ROI you can expect by shifting to our Pay-Per-Appointment (PPA) model.</li>
+        <li><strong>Tech Integration Map:</strong> A simple blueprint showing how our automation system will plug into your existing tools to guarantee rapid lead response.</li>
+      </ul>
+      <p style="margin-top: 16px;">You will leave this session with a complete blueprint for a system that delivers qualified, profitable appointments. This diagnostic is the only way we can guarantee results before we engage in a monthly retainer.</p>
+    </div>
+    <div class="price-card">
+
+      <img src="img/logo-mobile-2025.png" alt="Diagnostic Illustration" style="width:100%;max-width:450px;margin-bottom:34px;">
+        <h4>Secure Your Spot</h4>
+      <div class="price">$350</div>
+      <p class="muted small">One-time payment for your 45-minute diagnostic session.</p>
+<div id='product-component-1762194837035'></div>
 <script type="text/javascript">
 /*<![CDATA[*/
 (function () {
@@ -48,285 +70,289 @@
     ShopifyBuy.UI.onReady(client).then(function (ui) {
       ui.createComponent('product', {
         id: '7468362694731',
-        node: document.getElementById('product-component-1762192035969'),
+        node: document.getElementById('product-component-1762194837035'),
         moneyFormat: '%24%7B%7Bamount%7D%7D',
         options: {
-  "product": {
-    "styles": {
-      "product": {
-        "@media (min-width: 601px)": {
-          "max-width": "100%",
-          "margin-left": "0",
-          "margin-bottom": "50px"
+          "product": {
+            "styles": {
+              "product": {
+                /* LEFT-ALIGN THE COMPONENT */
+                "text-align": "left",   // CHANGED
+                "margin": "0",          // CHANGED (removes auto-centering)
+                "max-width": "100%",    // CHANGED (fills container)
+                "@media (min-width: 601px)": {
+                  "max-width": "100%",  // CHANGED (was calc(25% - 20px))
+                  "margin-left": "0",   // CHANGED (was 20px)
+                  "margin-bottom": "50px"
+                }
+              },
+              "title": {
+                "color": "#0c62ab"
+              },
+              "button": {
+                "font-family": "Lato, sans-serif",
+                "font-size": "16px",
+                "padding-top": "16px",
+                "padding-bottom": "16px",
+                ":hover": {
+                  "background-color": "#0b589a"
+                },
+                "background-color": "#0c62ab",
+                ":focus": {
+                  "background-color": "#0b589a"
+                },
+                "border-radius": "12px",
+                "padding-left": "17px",
+                "padding-right": "17px",
+
+                /* ENSURE THE BUTTON HUGS THE LEFT EDGE */
+                "margin-left": "0",     // CHANGED
+                "margin-right": "auto", // CHANGED
+                "display": "inline-block", // CHANGED
+                "text-align": "center"  // keep label centered inside
+              },
+              "quantityInput": {
+                "font-size": "16px",
+                "padding-top": "16px",
+                "padding-bottom": "16px"
+              },
+              "price": {
+                "color": "#0c62ab"
+              },
+              "compareAt": {
+                "color": "#0c62ab"
+              },
+              "unitPrice": {
+                "color": "#0c62ab"
+              }
+            },
+            "buttonDestination": "checkout",
+            "contents": {
+              "img": false,
+              "title": false,
+              "price": false
+            },
+            "text": {
+              "button": "PAY NOW"
+            },
+            "googleFonts": [
+              "Lato"
+            ]
+          },
+          "productSet": {
+            "styles": {
+              "products": {
+                "@media (min-width: 601px)": {
+                  "margin-left": "-20px"
+                }
+              }
+            }
+          },
+          "modalProduct": {
+            "contents": {
+              "img": false,
+              "imgWithCarousel": true,
+              "button": false,
+              "buttonWithQuantity": true
+            },
+            "styles": {
+              "product": {
+                "@media (min-width: 601px)": {
+                  "max-width": "100%",
+                  "margin-left": "0px",
+                  "margin-bottom": "0px"
+                }
+              },
+              "button": {
+                "font-family": "Lato, sans-serif",
+                "font-size": "16px",
+                "padding-top": "16px",
+                "padding-bottom": "16px",
+                ":hover": {
+                  "background-color": "#0b589a"
+                },
+                "background-color": "#0c62ab",
+                ":focus": {
+                  "background-color": "#0b589a"
+                },
+                "border-radius": "12px",
+                "padding-left": "17px",
+                "padding-right": "17px"
+              },
+              "quantityInput": {
+                "font-size": "16px",
+                "padding-top": "16px",
+                "padding-bottom": "16px"
+              },
+              "title": {
+                "font-family": "Helvetica Neue, sans-serif",
+                "font-weight": "bold",
+                "font-size": "26px",
+                "color": "#4c4c4c"
+              },
+              "price": {
+                "font-family": "Helvetica Neue, sans-serif",
+                "font-weight": "normal",
+                "font-size": "18px",
+                "color": "#4c4c4c"
+              },
+              "compareAt": {
+                "font-family": "Helvetica Neue, sans-serif",
+                "font-weight": "normal",
+                "font-size": "15.299999999999999px",
+                "color": "#4c4c4c"
+              },
+              "unitPrice": {
+                "font-family": "Helvetica Neue, sans-serif",
+                "font-weight": "normal",
+                "font-size": "15.299999999999999px",
+                "color": "#4c4c4c"
+              }
+            },
+            "googleFonts": [
+              "Lato"
+            ],
+            "text": {
+              "button": "Add to cart"
+            }
+          },
+          "option": {},
+          "cart": {
+            "styles": {
+              "button": {
+                "font-family": "Lato, sans-serif",
+                "font-size": "16px",
+                "padding-top": "16px",
+                "padding-bottom": "16px",
+                ":hover": {
+                  "background-color": "#0b589a"
+                },
+                "background-color": "#0c62ab",
+                ":focus": {
+                  "background-color": "#0b589a"
+                },
+                "border-radius": "12px"
+              },
+              "title": {
+                "color": "#0c62ab"
+              },
+              "header": {
+                "color": "#0c62ab"
+              },
+              "lineItems": {
+                "color": "#0c62ab"
+              },
+              "subtotalText": {
+                "color": "#0c62ab"
+              },
+              "subtotal": {
+                "color": "#0c62ab"
+              },
+              "notice": {
+                "color": "#0c62ab"
+              },
+              "currency": {
+                "color": "#0c62ab"
+              },
+              "close": {
+                "color": "#0c62ab",
+                ":hover": {
+                  "color": "#0c62ab"
+                }
+              },
+              "empty": {
+                "color": "#0c62ab"
+              },
+              "noteDescription": {
+                "color": "#0c62ab"
+              },
+              "discountText": {
+                "color": "#0c62ab"
+              },
+              "discountIcon": {
+                "fill": "#0c62ab"
+              },
+              "discountAmount": {
+                "color": "#0c62ab"
+              }
+            },
+            "text": {
+              "total": "Subtotal",
+              "notice": "",
+              "button": "Checkout"
+            },
+            "contents": {
+              "note": true
+            },
+            "popup": false,
+            "googleFonts": [
+              "Lato"
+            ]
+          },
+          "toggle": {
+            "styles": {
+              "toggle": {
+                "font-family": "Lato, sans-serif",
+                "background-color": "#0c62ab",
+                ":hover": {
+                  "background-color": "#0b589a"
+                },
+                ":focus": {
+                  "background-color": "#0b589a"
+                }
+              },
+              "count": {
+                "font-size": "16px"
+              }
+            },
+            "googleFonts": [
+              "Lato"
+            ]
+          },
+          "lineItem": {
+            "styles": {
+              "variantTitle": {
+                "color": "#0c62ab"
+              },
+              "title": {
+                "color": "#0c62ab"
+              },
+              "price": {
+                "color": "#0c62ab"
+              },
+              "fullPrice": {
+                "color": "#0c62ab"
+              },
+              "discount": {
+                "color": "#0c62ab"
+              },
+              "discountIcon": {
+                "fill": "#0c62ab"
+              },
+              "quantity": {
+                "color": "#0c62ab"
+              },
+              "quantityIncrement": {
+                "color": "#0c62ab",
+                "border-color": "#0c62ab"
+              },
+              "quantityDecrement": {
+                "color": "#0c62ab",
+                "border-color": "#0c62ab"
+              },
+              "quantityInput": {
+                "color": "#0c62ab",
+                "border-color": "#0c62ab"
+              }
+            }
+          }
         },
-        "text-align": "left"
-      },
-      "title": {
-        "font-size": "26px",
-        "color": "#0c62ab"
-      },
-      "button": {
-        "font-family": "Lato, sans-serif",
-        "font-size": "16px",
-        "padding-top": "16px",
-        "padding-bottom": "16px",
-        ":hover": {
-          "background-color": "#0b589a"
-        },
-        "background-color": "#0c62ab",
-        ":focus": {
-          "background-color": "#0b589a"
-        },
-        "border-radius": "12px",
-        "padding-left": "17px",
-        "padding-right": "17px"
-      },
-      "quantityInput": {
-        "font-size": "16px",
-        "padding-top": "16px",
-        "padding-bottom": "16px"
-      },
-      "price": {
-        "font-size": "18px",
-        "color": "#0c62ab"
-      },
-      "compareAt": {
-        "font-size": "15.299999999999999px",
-        "color": "#0c62ab"
-      },
-      "unitPrice": {
-        "font-size": "15.299999999999999px",
-        "color": "#0c62ab"
-      }
-    },
-    "buttonDestination": "checkout",
-    "layout": "horizontal",
-    "contents": {
-      "img": false,
-      "imgWithCarousel": true,
-      "description": true
-    },
-    "width": "100%",
-    "text": {
-      "button": "Buy now"
-    },
-    "googleFonts": [
-      "Lato"
-    ]
-  },
-  "productSet": {
-    "styles": {
-      "products": {
-        "@media (min-width: 601px)": {
-          "margin-left": "-20px"
-        }
-      }
-    }
-  },
-  "modalProduct": {
-    "contents": {
-      "img": false,
-      "imgWithCarousel": true,
-      "button": false,
-      "buttonWithQuantity": true
-    },
-    "styles": {
-      "product": {
-        "@media (min-width: 601px)": {
-          "max-width": "100%",
-          "margin-left": "0px",
-          "margin-bottom": "0px"
-        }
-      },
-      "button": {
-        "font-family": "Lato, sans-serif",
-        "font-size": "16px",
-        "padding-top": "16px",
-        "padding-bottom": "16px",
-        ":hover": {
-          "background-color": "#0b589a"
-        },
-        "background-color": "#0c62ab",
-        ":focus": {
-          "background-color": "#0b589a"
-        },
-        "border-radius": "12px",
-        "padding-left": "17px",
-        "padding-right": "17px"
-      },
-      "quantityInput": {
-        "font-size": "16px",
-        "padding-top": "16px",
-        "padding-bottom": "16px"
-      },
-      "title": {
-        "font-family": "Helvetica Neue, sans-serif",
-        "font-weight": "bold",
-        "font-size": "26px",
-        "color": "#4c4c4c"
-      },
-      "price": {
-        "font-family": "Helvetica Neue, sans-serif",
-        "font-weight": "normal",
-        "font-size": "18px",
-        "color": "#4c4c4c"
-      },
-      "compareAt": {
-        "font-family": "Helvetica Neue, sans-serif",
-        "font-weight": "normal",
-        "font-size": "15.299999999999999px",
-        "color": "#4c4c4c"
-      },
-      "unitPrice": {
-        "font-family": "Helvetica Neue, sans-serif",
-        "font-weight": "normal",
-        "font-size": "15.299999999999999px",
-        "color": "#4c4c4c"
-      }
-    },
-    "googleFonts": [
-      "Lato"
-    ],
-    "text": {
-      "button": "Add to cart"
-    }
-  },
-  "option": {},
-  "cart": {
-    "styles": {
-      "button": {
-        "font-family": "Lato, sans-serif",
-        "font-size": "16px",
-        "padding-top": "16px",
-        "padding-bottom": "16px",
-        ":hover": {
-          "background-color": "#0b589a"
-        },
-        "background-color": "#0c62ab",
-        ":focus": {
-          "background-color": "#0b589a"
-        },
-        "border-radius": "12px"
-      },
-      "title": {
-        "color": "#0c62ab"
-      },
-      "header": {
-        "color": "#0c62ab"
-      },
-      "lineItems": {
-        "color": "#0c62ab"
-      },
-      "subtotalText": {
-        "color": "#0c62ab"
-      },
-      "subtotal": {
-        "color": "#0c62ab"
-      },
-      "notice": {
-        "color": "#0c62ab"
-      },
-      "currency": {
-        "color": "#0c62ab"
-      },
-      "close": {
-        "color": "#0c62ab",
-        ":hover": {
-          "color": "#0c62ab"
-        }
-      },
-      "empty": {
-        "color": "#0c62ab"
-      },
-      "noteDescription": {
-        "color": "#0c62ab"
-      },
-      "discountText": {
-        "color": "#0c62ab"
-      },
-      "discountIcon": {
-        "fill": "#0c62ab"
-      },
-      "discountAmount": {
-        "color": "#0c62ab"
-      }
-    },
-    "text": {
-      "total": "Subtotal",
-      "notice": "",
-      "button": "Checkout"
-    },
-    "contents": {
-      "note": true
-    },
-    "googleFonts": [
-      "Lato"
-    ]
-  },
-  "toggle": {
-    "styles": {
-      "toggle": {
-        "font-family": "Lato, sans-serif",
-        "background-color": "#0c62ab",
-        ":hover": {
-          "background-color": "#0b589a"
-        },
-        ":focus": {
-          "background-color": "#0b589a"
-        }
-      },
-      "count": {
-        "font-size": "16px"
-      }
-    },
-    "googleFonts": [
-      "Lato"
-    ]
-  },
-  "lineItem": {
-    "styles": {
-      "variantTitle": {
-        "color": "#0c62ab"
-      },
-      "title": {
-        "color": "#0c62ab"
-      },
-      "price": {
-        "color": "#0c62ab"
-      },
-      "fullPrice": {
-        "color": "#0c62ab"
-      },
-      "discount": {
-        "color": "#0c62ab"
-      },
-      "discountIcon": {
-        "fill": "#0c62ab"
-      },
-      "quantity": {
-        "color": "#0c62ab"
-      },
-      "quantityIncrement": {
-        "color": "#0c62ab",
-        "border-color": "#0c62ab"
-      },
-      "quantityDecrement": {
-        "color": "#0c62ab",
-        "border-color": "#0c62ab"
-      },
-      "quantityInput": {
-        "color": "#0c62ab",
-        "border-color": "#0c62ab"
-      }
-    }
-  }
-},
       });
     });
   }
 })();
-/*]]>*/
 </script>
+
   </main>
 
   <footer class="container" role="contentinfo">
@@ -354,4 +380,3 @@
 </body>
 
 </html>
-
