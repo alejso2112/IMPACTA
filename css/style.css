@@ -156,3 +156,11 @@ footer{padding:18px 0;color:var(--muted);font-size:14px;border-top:1px solid #f1
     grid-template-columns: 1fr;
   }
 }
+
+
+@media (max-width: 500px) {
+  .container {
+    max-width: 100%;
+    padding: 16px;
+  }
+}
