@@ -125,7 +125,7 @@ footer{padding:18px 0;color:var(--muted);font-size:14px;border-top:1px solid #f1
 /* Override default 3-column layout on desktop for this specific grid */
 @media(min-width: 980px) {
   .pricing-grid-ppa {
-    grid-template-columns: repeat(2, 1fr); /* Force 2 columns */
+    grid-template-columns: repeat(3, 1fr); /* Force 2 columns */
   }
 }
 
