@@ -114,34 +114,35 @@ footer{padding:18px 0;color:var(--muted);font-size:14px;border-top:1px solid #f1
   .grid-3, .pricing-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* Specific styles for the 2-card PPA model grid */
+/* Specific styles for the 3-card PPA model grid */
 .pricing-grid-ppa {
-  justify-content: center; /* Center grid items horizontally */
-  max-width: 900px; /* Limit width */
-  margin-left: auto;  /* Center the grid container itself */
-  margin-right: auto; /* Center the grid container itself */
+  justify-content: center;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 24px;
 }
 
-/* Override default 3-column layout on desktop for this specific grid */
+/* 3 columns on desktop */
 @media(min-width: 980px) {
   .pricing-grid-ppa {
-    grid-template-columns: repeat(3, 1fr); /* Force 2 columns */
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Ensure 2 columns on tablet as well */
- @media(min-width: 720px) {
-   .pricing-grid-ppa {
-     grid-template-columns: repeat(2, 1fr); /* Ensure 2 columns */
-   }
- }
+/* 2 columns on tablet */
+@media(min-width: 720px) and (max-width: 979px) {
+  .pricing-grid-ppa {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
-/* Ensure 1 column on mobile */
- @media(max-width: 719px) {
-   .pricing-grid-ppa {
-     grid-template-columns: 1fr; /* Ensure 1 column */
-   }
- }
+/* 1 column on mobile */
+@media(max-width: 719px) {
+  .pricing-grid-ppa {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* Layout for the diagnostic page */
 .diagnostic-grid {
