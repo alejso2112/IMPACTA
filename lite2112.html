@@ -985,7 +985,7 @@ document.getElementById("crm-import").addEventListener("click", function () {
         const imported = rows.map(row => {
           const values = row.split(",").map(v => v.trim());
           const obj = {};
-          headers.forEach((h, i) => obj[h] = values[i] || "");
+          headers.forEach((h, i) => (obj[h] = values[i] || ""));
           return obj;
         });
 
@@ -1024,7 +1024,6 @@ document.getElementById("crm-import").addEventListener("click", function () {
         resetForm();
 
         alert("CSV imported successfully!");
-
       } catch (err) {
         console.error(err);
         alert("Could not read CSV file. Make sure the format is correct.");
@@ -1037,8 +1036,7 @@ document.getElementById("crm-import").addEventListener("click", function () {
   input.click();
 });
 
-
-    // Export JSON
+// Export JSON
 document.getElementById("crm-export").addEventListener("click", function () {
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(leads, null, 2));
@@ -1050,638 +1048,583 @@ document.getElementById("crm-export").addEventListener("click", function () {
   a.remove();
 });
 
-// Import JSON
-document.getElementById("crm-import").addEventListener("click", function () {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json,.json";
+let currentUser = null;
+// === Simple Calling CRM (localStorage only) ===
+(function () {
+  const STORAGE_KEY = "impacta_calling_crm_v1";
 
-  input.onchange = function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
+  /** @type {Array} */
+  let leads = [];
+  let selectedId = null;
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      try {
-        const imported = JSON.parse(e.target.result);
+  // --- Helpers ---
+  function saveLeads() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+    updateCountsAndSnapshot();
+  }
 
-        if (!Array.isArray(imported)) {
-          alert("File format error: expected an array of leads.");
-          return;
-        }
+  function loadLeads() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    leads = raw ? JSON.parse(raw) : [];
+  }
 
-        // 🔥 Flexible importer that auto-maps snake_case → camelCase
-        const normalized = imported.map((row) => ({
-          id: row.id,
-          firstName: row.firstName || row.first_name || "",
-          lastName: row.lastName || row.last_name || "",
-          name:
-            row.name ||
-            `${row.first_name || ""} ${row.last_name || ""}`.trim(),
-          company: row.company || "",
-          phone: row.phone || row.phone_number || "",
-          email: row.email || "",
-          website: row.website || "",
-          source: row.source || "",
-          status: row.status || "New",
-          priority: row.priority || "Normal",
-          timezone: row.timezone || "",
-          nextCall: row.nextCall || row.next_call || "",
-          notes: row.notes || "",
-          createdAt: row.createdAt || row.created_at || new Date().toISOString(),
-          updatedAt: row.updatedAt || row.updated_at || new Date().toISOString(),
-          timeline: row.timeline || []
-        }));
+  // --- Supabase helpers ---
+  // Load leads from Supabase for the current authenticated user. When no user is
+  // signed in, this function returns without modifying the leads array. It
+  // transforms each row into the format expected by the CRM and triggers
+  // rendering and count updates.
+  async function loadLeadsFromSupabase() {
+    if (!currentUser) return;
+    const { data, error } = await supabaseClient
+      .from("leads")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false });
 
-        leads = normalized;
-        saveLeads();
-        renderLeadList();
-        resetForm();
+    if (error) {
+      console.error("Error loading leads:", error);
+      alert("Error loading leads from server.");
+      return;
+    }
 
-        alert("Leads imported successfully.");
-      } catch (err) {
-        console.error(err);
-        alert("Could not read file. Make sure it is valid JSON.");
-      }
+    leads = (data || []).map((row) => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      name: row.name,
+      company: row.company,
+      phone: row.phone,
+      email: row.email,
+      website: row.website,
+      source: row.source,
+      status: row.status,
+      priority: row.priority,
+      timezone: row.timezone,
+      nextCall: row.next_call,
+      notes: row.notes,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      timeline: row.timeline || []
+    }));
+
+    renderLeadList();
+    updateCountsAndSnapshot();
+  }
+
+  // Upsert a lead record to Supabase. Inserts a new row or updates an existing
+  // one based on the lead's id. When no user is signed in, it returns early.
+  async function upsertLeadToSupabase(lead) {
+    if (!currentUser) return;
+
+    const payload = {
+      id: lead.id,
+      user_id: currentUser.id,
+      first_name: lead.firstName || null,
+      last_name: lead.lastName || null,
+      name: lead.name || null,
+      company: lead.company || null,
+      phone: lead.phone || null,
+      email: lead.email || null,
+      website: lead.website || null,
+      source: lead.source || null,
+      status: lead.status || null,
+      priority: lead.priority || null,
+      timezone: lead.timezone || null,
+      next_call: lead.nextCall || null,
+      notes: lead.notes || null,
+      timeline: lead.timeline || []
     };
 
-    reader.readAsText(file);
-  };
+    const { error } = await supabaseClient
+      .from("leads")
+      .upsert(payload, { onConflict: "id" });
 
-  input.click();
-});
+    if (error) {
+      console.error("Error saving lead:", error);
+      alert("Error saving lead to server.");
+    }
+  }
 
+  function uid() {
+    return "L" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  }
 
+  function formatDateTime(dtStr) {
+    if (!dtStr) return "";
+    const d = new Date(dtStr);
+    if (isNaN(d.getTime())) return dtStr;
+    return d.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
 
-    let currentUser = null;
-    // === Simple Calling CRM (localStorage only) ===
-    (function () {
-      const STORAGE_KEY = "impacta_calling_crm_v1";
+  function todayString() {
+    const d = new Date();
+    return d.toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
 
-      /** @type {Array} */
-      let leads = [];
-      let selectedId = null;
+  function getTodayISODate() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return year + "-" + month + "-" + day;
+  }
 
-      // --- Helpers ---
-      function saveLeads() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
-        updateCountsAndSnapshot();
+  function isSameDay(a, b) {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
+
+  function renderTodayLabel() {
+    const el = document.getElementById("crm-today");
+    if (el) el.textContent = todayString();
+  }
+
+  // --- Reporting helpers ---
+  function computeReportData() {
+    const statusCounts = {};
+    const outcomeCounts = {};
+    const sourceCounts = {};
+    let totalCalls = 0;
+
+    for (const lead of leads) {
+      const status = lead.status || "Unspecified";
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+      const src = lead.source && lead.source.trim() ? lead.source.trim() : "Unspecified";
+      sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+
+      for (const entry of lead.timeline || []) {
+        const outcome = entry.outcome || "Update";
+        outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
+        totalCalls++;
       }
+    }
 
-      function loadLeads() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        leads = raw ? JSON.parse(raw) : [];
-      }
+    return { statusCounts, outcomeCounts, sourceCounts, totalCalls };
+  }
 
-      // --- Supabase helpers ---
-      // Load leads from Supabase for the current authenticated user. When no user is
-      // signed in, this function returns without modifying the leads array. It
-      // transforms each row into the format expected by the CRM and triggers
-      // rendering and count updates.
-      async function loadLeadsFromSupabase() {
-        if (!currentUser) return;
-        const { data, error } = await supabaseClient
-          .from("leads")
-          .select("*")
-          .eq("user_id", currentUser.id)
-          .order("created_at", { ascending: false });
+  function renderReportModal() {
+    const modal = document.getElementById("crm-report-modal");
+    const body = document.getElementById("crm-report-body");
+    if (!modal || !body) return;
 
-        if (error) {
-          console.error("Error loading leads:", error);
-          alert("Error loading leads from server.");
-          return;
-        }
+    const { statusCounts, outcomeCounts, sourceCounts, totalCalls } = computeReportData();
 
-        leads = (data || []).map((row) => ({
-          id: row.id,
-          firstName: row.first_name,
-          lastName: row.last_name,
-          name: row.name,
-          company: row.company,
-          phone: row.phone,
-          email: row.email,
-          website: row.website,
-          source: row.source,
-          status: row.status,
-          priority: row.priority,
-          timezone: row.timezone,
-          nextCall: row.next_call,
-          notes: row.notes,
-          createdAt: row.created_at,
-          updatedAt: row.updated_at,
-          timeline: row.timeline || []
-        }));
+    let html = "";
 
-        renderLeadList();
-        updateCountsAndSnapshot();
-      }
+    html += '<div class="crm-report-section-title">Overview</div>';
+    html += '<p style="margin:4px 0 8px;">';
+    html += '<span class="crm-report-badge">Total Leads: ' + leads.length + "</span>";
+    html += " &nbsp; ";
+    html += '<span class="crm-report-badge">Total Call Logs: ' + totalCalls + "</span>";
+    html += "</p>";
 
-      // Upsert a lead record to Supabase. Inserts a new row or updates an existing
-      // one based on the lead's id. When no user is signed in, it returns early.
-      async function upsertLeadToSupabase(lead) {
-        if (!currentUser) return;
-
-        const payload = {
-          id: lead.id,
-          user_id: currentUser.id,
-          first_name: lead.firstName || null,
-          last_name: lead.lastName || null,
-          name: lead.name || null,
-          company: lead.company || null,
-          phone: lead.phone || null,
-          email: lead.email || null,
-          website: lead.website || null,
-          source: lead.source || null,
-          status: lead.status || null,
-          priority: lead.priority || null,
-          timezone: lead.timezone || null,
-          next_call: lead.nextCall || null,
-          notes: lead.notes || null,
-          timeline: lead.timeline || []
-        };
-
-        const { error } = await supabaseClient
-          .from("leads")
-          .upsert(payload, { onConflict: "id" });
-
-        if (error) {
-          console.error("Error saving lead:", error);
-          alert("Error saving lead to server.");
-        }
-      }
-
-      function uid() {
-        return "L" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-      }
-
-      function formatDateTime(dtStr) {
-        if (!dtStr) return "";
-        const d = new Date(dtStr);
-        if (isNaN(d.getTime())) return dtStr;
-        return d.toLocaleString(undefined, {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
+    // Status table
+    html += '<div class="crm-report-section-title">Leads by Status</div>';
+    if (Object.keys(statusCounts).length) {
+      html +=
+        '<table class="crm-report-table"><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>';
+      Object.keys(statusCounts)
+        .sort()
+        .forEach((key) => {
+          html += "<tr><td>" + key + "</td><td>" + statusCounts[key] + "</td></tr>";
         });
-      }
+      html += "</tbody></table>";
+    } else {
+      html += '<div class="crm-empty" style="padding:6px 0;">No leads yet.</div>';
+    }
 
-      function todayString() {
-        const d = new Date();
-        return d.toLocaleString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
+    // Outcome table
+    html += '<div class="crm-report-section-title">Call Outcomes</div>';
+    if (Object.keys(outcomeCounts).length) {
+      html +=
+        '<table class="crm-report-table"><thead><tr><th>Outcome</th><th>Count</th></tr></thead><tbody>';
+      Object.keys(outcomeCounts)
+        .sort()
+        .forEach((key) => {
+          html += "<tr><td>" + key + "</td><td>" + outcomeCounts[key] + "</td></tr>";
         });
-      }
+      html += "</tbody></table>";
+    } else {
+      html += '<div class="crm-empty" style="padding:6px 0;">No calls logged yet.</div>';
+    }
 
-      function getTodayISODate() {
-        const d = new Date();
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        return year + "-" + month + "-" + day;
-      }
+    // Source table (top sources)
+    html += '<div class="crm-report-section-title">Leads by Source</div>';
+    if (Object.keys(sourceCounts).length) {
+      const sortedSources = Object.keys(sourceCounts).sort(
+        (a, b) => sourceCounts[b] - sourceCounts[a]
+      );
+      html +=
+        '<table class="crm-report-table"><thead><tr><th>Source</th><th>Count</th></tr></thead><tbody>';
+      sortedSources.forEach((key) => {
+        html += "<tr><td>" + key + "</td><td>" + sourceCounts[key] + "</td></tr>";
+      });
+      html += "</tbody></table>";
+    } else {
+      html += '<div class="crm-empty" style="padding:6px 0;">No sources recorded yet.</div>';
+    }
 
-      function isSameDay(a, b) {
-        return (
-          a.getFullYear() === b.getFullYear() &&
-          a.getMonth() === b.getMonth() &&
-          a.getDate() === b.getDate()
-        );
-      }
+    body.innerHTML = html;
+    modal.style.display = "flex";
+    modal.setAttribute("aria-hidden", "false");
+  }
 
-      function renderTodayLabel() {
-        const el = document.getElementById("crm-today");
-        if (el) el.textContent = todayString();
-      }
+  function hideReportModal() {
+    const modal = document.getElementById("crm-report-modal");
+    if (!modal) return;
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+  }
 
-      // --- Reporting helpers ---
-      function computeReportData() {
-        const statusCounts = {};
-        const outcomeCounts = {};
-        const sourceCounts = {};
-        let totalCalls = 0;
+  // --- Rendering: List ---
+  function renderLeadList() {
+    const body = document.getElementById("crm-lead-list-body");
+    const totalCountEl = document.getElementById("crm-total-count");
+    if (!body) return;
 
-        for (const lead of leads) {
-          const status = lead.status || "Unspecified";
-          statusCounts[status] = (statusCounts[status] || 0) + 1;
+    body.innerHTML = "";
 
-          const src = lead.source && lead.source.trim() ? lead.source.trim() : "Unspecified";
-          sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+    const searchTerm = document.getElementById("crm-search").value.trim().toLowerCase();
 
-          for (const entry of lead.timeline || []) {
-            const outcome = entry.outcome || "Update";
-            outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
-            totalCalls++;
-          }
-        }
+    const filterStatus = document.getElementById("crm-filter-status").value;
+    const filterPriority = document.getElementById("crm-filter-priority").value;
 
-        return { statusCounts, outcomeCounts, sourceCounts, totalCalls };
-      }
+    // Calling View controls
+    const callingToggleEl = document.getElementById("crm-calling-toggle");
+    const fromEl = document.getElementById("crm-callview-from");
+    const toEl = document.getElementById("crm-callview-to");
 
-      function renderReportModal() {
-        const modal = document.getElementById("crm-report-modal");
-        const body = document.getElementById("crm-report-body");
-        if (!modal || !body) return;
+    const callingEnabled = callingToggleEl ? callingToggleEl.checked : false;
 
-        const { statusCounts, outcomeCounts, sourceCounts, totalCalls } = computeReportData();
+    let fromDate = null;
+    let toDate = null;
 
-        let html = "";
+    if (callingEnabled && fromEl && fromEl.value) {
+      const fd = new Date(fromEl.value + "T00:00:00");
+      if (!isNaN(fd.getTime())) fromDate = fd;
+    }
+    if (callingEnabled && toEl && toEl.value) {
+      const td = new Date(toEl.value + "T23:59:59");
+      if (!isNaN(td.getTime())) toDate = td;
+    }
 
-        html += '<div class="crm-report-section-title">Overview</div>';
-        html += '<p style="margin:4px 0 8px;">';
-        html += '<span class="crm-report-badge">Total Leads: ' + leads.length + "</span>";
-        html += ' &nbsp; ';
-        html += '<span class="crm-report-badge">Total Call Logs: ' + totalCalls + "</span>";
-        html += "</p>";
+    // If both set and from > to, swap them
+    if (fromDate && toDate && fromDate > toDate) {
+      const tmp = fromDate;
+      fromDate = toDate;
+      toDate = tmp;
+    }
 
-        // Status table
-        html += '<div class="crm-report-section-title">Leads by Status</div>';
-        if (Object.keys(statusCounts).length) {
-          html += '<table class="crm-report-table"><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>';
-          Object.keys(statusCounts).sort().forEach((key) => {
-            html += "<tr><td>" + key + "</td><td>" + statusCounts[key] + "</td></tr>";
-          });
-          html += "</tbody></table>";
-        } else {
-          html += '<div class="crm-empty" style="padding:6px 0;">No leads yet.</div>';
-        }
+    const filtered = leads.filter((lead) => {
+      // Status / priority filters
+      if (filterStatus && lead.status !== filterStatus) return false;
+      if (filterPriority && lead.priority !== filterPriority) return false;
 
-        // Outcome table
-        html += '<div class="crm-report-section-title">Call Outcomes</div>';
-        if (Object.keys(outcomeCounts).length) {
-          html += '<table class="crm-report-table"><thead><tr><th>Outcome</th><th>Count</th></tr></thead><tbody>';
-          Object.keys(outcomeCounts).sort().forEach((key) => {
-            html += "<tr><td>" + key + "</td><td>" + outcomeCounts[key] + "</td></tr>";
-          });
-          html += "</tbody></table>";
-        } else {
-          html += '<div class="crm-empty" style="padding:6px 0;">No calls logged yet.</div>';
-        }
-
-        // Source table (top sources)
-        html += '<div class="crm-report-section-title">Leads by Source</div>';
-        if (Object.keys(sourceCounts).length) {
-          const sortedSources = Object.keys(sourceCounts).sort((a, b) => sourceCounts[b] - sourceCounts[a]);
-          html += '<table class="crm-report-table"><thead><tr><th>Source</th><th>Count</th></tr></thead><tbody>';
-          sortedSources.forEach((key) => {
-            html += "<tr><td>" + key + "</td><td>" + sourceCounts[key] + "</td></tr>";
-          });
-          html += "</tbody></table>";
-        } else {
-          html += '<div class="crm-empty" style="padding:6px 0;">No sources recorded yet.</div>';
-        }
-
-        body.innerHTML = html;
-        modal.style.display = "flex";
-        modal.setAttribute("aria-hidden", "false");
-      }
-
-      function hideReportModal() {
-        const modal = document.getElementById("crm-report-modal");
-        if (!modal) return;
-        modal.style.display = "none";
-        modal.setAttribute("aria-hidden", "true");
-      }
-
-      // --- Rendering: List ---
-      function renderLeadList() {
-        const body = document.getElementById("crm-lead-list-body");
-        const totalCountEl = document.getElementById("crm-total-count");
-        if (!body) return;
-
-        body.innerHTML = "";
-
-        const searchTerm = document
-          .getElementById("crm-search")
-          .value.trim()
+      // Search term (include website and first/last)
+      if (searchTerm) {
+        const haystack = [
+          lead.name || "",
+          lead.firstName || "",
+          lead.lastName || "",
+          lead.company || "",
+          lead.phone || "",
+          lead.email || "",
+          lead.website || ""
+        ]
+          .join(" ")
           .toLowerCase();
-
-        const filterStatus = document.getElementById("crm-filter-status").value;
-        const filterPriority = document.getElementById("crm-filter-priority").value;
-
-        // Calling View controls
-        const callingToggleEl = document.getElementById("crm-calling-toggle");
-        const fromEl = document.getElementById("crm-callview-from");
-        const toEl = document.getElementById("crm-callview-to");
-
-        const callingEnabled = callingToggleEl ? callingToggleEl.checked : false;
-
-        let fromDate = null;
-        let toDate = null;
-
-        if (callingEnabled && fromEl && fromEl.value) {
-          const fd = new Date(fromEl.value + "T00:00:00");
-          if (!isNaN(fd.getTime())) fromDate = fd;
-        }
-        if (callingEnabled && toEl && toEl.value) {
-          const td = new Date(toEl.value + "T23:59:59");
-          if (!isNaN(td.getTime())) toDate = td;
-        }
-
-        // If both set and from > to, swap them
-        if (fromDate && toDate && fromDate > toDate) {
-          const tmp = fromDate;
-          fromDate = toDate;
-          toDate = tmp;
-        }
-
-        const filtered = leads.filter((lead) => {
-          // Status / priority filters
-          if (filterStatus && lead.status !== filterStatus) return false;
-          if (filterPriority && lead.priority !== filterPriority) return false;
-
-          // Search term (include website and first/last)
-          if (searchTerm) {
-            const haystack = [
-              lead.name || "",
-              lead.firstName || "",
-              lead.lastName || "",
-              lead.company || "",
-              lead.phone || "",
-              lead.email || "",
-              lead.website || ""
-            ]
-              .join(" ")
-              .toLowerCase();
-            if (!haystack.includes(searchTerm)) return false;
-          }
-
-          // Calling view filter by recall date (nextCall)
-          if (callingEnabled) {
-            if (!lead.nextCall) return false;
-            const nd = new Date(lead.nextCall);
-            if (isNaN(nd.getTime())) return false;
-            if (fromDate && nd < fromDate) return false;
-            if (toDate && nd > toDate) return false;
-          }
-
-          return true;
-        });
-
-        if (totalCountEl) totalCountEl.textContent = leads.length.toString();
-
-        if (!filtered.length) {
-          const empty = document.createElement("div");
-          empty.className = "crm-empty";
-          empty.textContent = callingEnabled
-            ? "No leads with recall dates in this range."
-            : "No leads match your filters.";
-          body.appendChild(empty);
-          return;
-        }
-
-        // Sort by nextCall ascending, with empty nextCall at bottom
-        filtered.sort((a, b) => {
-          if (!a.nextCall && !b.nextCall) return 0;
-          if (!a.nextCall) return 1;
-          if (!b.nextCall) return -1;
-          return new Date(a.nextCall) - new Date(b.nextCall);
-        });
-
-        for (const lead of filtered) {
-          const row = document.createElement("div");
-          row.className = "crm-lead-row";
-          if (lead.id === selectedId) {
-            row.classList.add("active");
-          }
-          row.dataset.id = lead.id;
-
-          const nameCell = document.createElement("div");
-          const nameDiv = document.createElement("div");
-          nameDiv.className = "crm-lead-name";
-          nameDiv.textContent = lead.name || "(No name)";
-          const companyDiv = document.createElement("div");
-          companyDiv.className = "crm-lead-company";
-          companyDiv.textContent = lead.company || lead.source || "";
-          nameCell.appendChild(nameDiv);
-          nameCell.appendChild(companyDiv);
-
-          const phoneCell = document.createElement("div");
-          phoneCell.className = "crm-mono";
-          phoneCell.textContent = lead.phone || "";
-
-          const statusCell = document.createElement("div");
-          const statusPill = document.createElement("span");
-          statusPill.className = "crm-status-pill";
-          const hotStatuses = ["Booked Meeting", "Closed Won", "Follow-Up"];
-          const coldStatuses = ["Closed Lost", "Not a Fit"];
-          if (hotStatuses.includes(lead.status)) statusPill.classList.add("hot");
-          if (coldStatuses.includes(lead.status)) statusPill.classList.add("cold");
-          statusPill.textContent = lead.status || "New";
-          statusCell.appendChild(statusPill);
-
-          const nextCell = document.createElement("div");
-          nextCell.className = "crm-mono";
-          nextCell.textContent = formatDateTime(lead.nextCall);
-
-          const priorityCell = document.createElement("div");
-          const priorityTag = document.createElement("span");
-          priorityTag.className = "crm-tag";
-          if (lead.priority === "High") priorityTag.classList.add("crm-tag-danger");
-          if (lead.priority === "Low") priorityTag.classList.add("crm-tag-warning");
-          priorityTag.textContent = lead.priority || "Normal";
-          priorityCell.appendChild(priorityTag);
-
-          row.appendChild(nameCell);
-          row.appendChild(phoneCell);
-          row.appendChild(statusCell);
-          row.appendChild(nextCell);
-          row.appendChild(priorityCell);
-
-          row.addEventListener("click", () => {
-            selectLead(lead.id);
-          });
-
-          body.appendChild(row);
-        }
+        if (!haystack.includes(searchTerm)) return false;
       }
 
-      // --- Rendering: Selected lead + timeline ---
-      function selectLead(id) {
-        selectedId = id;
-        const wrapper = document.getElementById("crm-selected-wrapper");
-        const hint = document.getElementById("crm-call-hint");
-        const label = document.getElementById("crm-selected-label");
-        const rowContainer = document.getElementById("crm-lead-list-body");
-
-        if (!wrapper || !label || !rowContainer) return;
-
-        const lead = leads.find((l) => l.id === id);
-        if (!lead) return;
-
-        wrapper.style.display = "";
-        if (hint) hint.style.display = "none";
-        label.textContent = "Active Lead";
-
-        // Name / company
-        document.getElementById("crm-selected-name").textContent = lead.name || "(No name)";
-        document.getElementById("crm-selected-company").textContent =
-          lead.company || lead.source || "";
-
-        // Status pill
-        const pill = document.getElementById("crm-selected-status-pill");
-        pill.textContent = lead.status || "New";
-        pill.className = "crm-status-pill";
-        const hotStatuses = ["Booked Meeting", "Closed Won", "Follow-Up"];
-        const coldStatuses = ["Closed Lost", "Not a Fit"];
-        if (hotStatuses.includes(lead.status)) pill.classList.add("hot");
-        if (coldStatuses.includes(lead.status)) pill.classList.add("cold");
-
-        // Priority
-        const priorityEl = document.getElementById("crm-selected-priority");
-        priorityEl.textContent = "Priority: " + (lead.priority || "Normal");
-
-        // Phone / email / website / next
-        document.getElementById("crm-selected-phone").textContent = lead.phone || "";
-        document.getElementById("crm-selected-email").textContent = lead.email || "";
-
-        const websiteEl = document.getElementById("crm-selected-website");
-        if (websiteEl) {
-          if (lead.website) {
-            let url = lead.website.trim();
-            if (url && !/^https?:\/\//i.test(url)) {
-              url = "https://" + url;
-            }
-            websiteEl.textContent = url;
-            websiteEl.href = url;
-            websiteEl.style.pointerEvents = "auto";
-            websiteEl.style.opacity = "1";
-          } else {
-            websiteEl.textContent = "";
-            websiteEl.removeAttribute("href");
-            websiteEl.style.pointerEvents = "none";
-            websiteEl.style.opacity = "0.6";
-          }
-        }
-
-        document.getElementById("crm-selected-next").textContent = formatDateTime(lead.nextCall);
-
-        // Reset call note + next
-        document.getElementById("crm-call-note").value = "";
-        document.getElementById("crm-call-next").value = "";
-
-        // Highlight active row
-        for (const row of rowContainer.querySelectorAll(".crm-lead-row")) {
-          row.classList.toggle("active", row.dataset.id === id);
-        }
-
-        renderTimeline(lead);
-        // Also sync form with selected lead for edits
-        fillFormWithLead(lead);
+      // Calling view filter by recall date (nextCall)
+      if (callingEnabled) {
+        if (!lead.nextCall) return false;
+        const nd = new Date(lead.nextCall);
+        if (isNaN(nd.getTime())) return false;
+        if (fromDate && nd < fromDate) return false;
+        if (toDate && nd > toDate) return false;
       }
 
-      function renderTimeline(lead) {
-        const timelineEl = document.getElementById("crm-timeline");
-        if (!timelineEl) return;
-        timelineEl.innerHTML = "";
+      return true;
+    });
 
-        const entries = (lead.timeline || []).slice().sort((a, b) => {
-          return new Date(b.timestamp) - new Date(a.timestamp);
-        });
+    if (totalCountEl) totalCountEl.textContent = leads.length.toString();
 
-        if (!entries.length) {
-          const empty = document.createElement("div");
-          empty.className = "crm-empty";
-          empty.textContent = "No calls logged yet.";
-          timelineEl.appendChild(empty);
-          return;
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "crm-empty";
+      empty.textContent = callingEnabled
+        ? "No leads with recall dates in this range."
+        : "No leads match your filters.";
+      body.appendChild(empty);
+      return;
+    }
+
+    // Sort by nextCall ascending, with empty nextCall at bottom
+    filtered.sort((a, b) => {
+      if (!a.nextCall && !b.nextCall) return 0;
+      if (!a.nextCall) return 1;
+      if (!b.nextCall) return -1;
+      return new Date(a.nextCall) - new Date(b.nextCall);
+    });
+
+    for (const lead of filtered) {
+      const row = document.createElement("div");
+      row.className = "crm-lead-row";
+      if (lead.id === selectedId) {
+        row.classList.add("active");
+      }
+      row.dataset.id = lead.id;
+
+      const nameCell = document.createElement("div");
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "crm-lead-name";
+      nameDiv.textContent = lead.name || "(No name)";
+      const companyDiv = document.createElement("div");
+      companyDiv.className = "crm-lead-company";
+      companyDiv.textContent = lead.company || lead.source || "";
+      nameCell.appendChild(nameDiv);
+      nameCell.appendChild(companyDiv);
+
+      const phoneCell = document.createElement("div");
+      phoneCell.className = "crm-mono";
+      phoneCell.textContent = lead.phone || "";
+
+      const statusCell = document.createElement("div");
+      const statusPill = document.createElement("span");
+      statusPill.className = "crm-status-pill";
+      const hotStatuses = ["Booked Meeting", "Closed Won", "Follow-Up"];
+      const coldStatuses = ["Closed Lost", "Not a Fit"];
+      if (hotStatuses.includes(lead.status)) statusPill.classList.add("hot");
+      if (coldStatuses.includes(lead.status)) statusPill.classList.add("cold");
+      statusPill.textContent = lead.status || "New";
+      statusCell.appendChild(statusPill);
+
+      const nextCell = document.createElement("div");
+      nextCell.className = "crm-mono";
+      nextCell.textContent = formatDateTime(lead.nextCall);
+
+      const priorityCell = document.createElement("div");
+      const priorityTag = document.createElement("span");
+      priorityTag.className = "crm-tag";
+      if (lead.priority === "High") priorityTag.classList.add("crm-tag-danger");
+      if (lead.priority === "Low") priorityTag.classList.add("crm-tag-warning");
+      priorityTag.textContent = lead.priority || "Normal";
+      priorityCell.appendChild(priorityTag);
+
+      row.appendChild(nameCell);
+      row.appendChild(phoneCell);
+      row.appendChild(statusCell);
+      row.appendChild(nextCell);
+      row.appendChild(priorityCell);
+
+      row.addEventListener("click", () => {
+        selectLead(lead.id);
+      });
+
+      body.appendChild(row);
+    }
+  }
+
+  // --- Rendering: Selected lead + timeline ---
+  function selectLead(id) {
+    selectedId = id;
+    const wrapper = document.getElementById("crm-selected-wrapper");
+    const hint = document.getElementById("crm-call-hint");
+    const label = document.getElementById("crm-selected-label");
+    const rowContainer = document.getElementById("crm-lead-list-body");
+
+    if (!wrapper || !label || !rowContainer) return;
+
+    const lead = leads.find((l) => l.id === id);
+    if (!lead) return;
+
+    wrapper.style.display = "";
+    if (hint) hint.style.display = "none";
+    label.textContent = "Active Lead";
+
+    // Name / company
+    document.getElementById("crm-selected-name").textContent = lead.name || "(No name)";
+    document.getElementById("crm-selected-company").textContent =
+      lead.company || lead.source || "";
+
+    // Status pill
+    const pill = document.getElementById("crm-selected-status-pill");
+    pill.textContent = lead.status || "New";
+    pill.className = "crm-status-pill";
+    const hotStatuses = ["Booked Meeting", "Closed Won", "Follow-Up"];
+    const coldStatuses = ["Closed Lost", "Not a Fit"];
+    if (hotStatuses.includes(lead.status)) pill.classList.add("hot");
+    if (coldStatuses.includes(lead.status)) pill.classList.add("cold");
+
+    // Priority
+    const priorityEl = document.getElementById("crm-selected-priority");
+    priorityEl.textContent = "Priority: " + (lead.priority || "Normal");
+
+    // Phone / email / website / next
+    document.getElementById("crm-selected-phone").textContent = lead.phone || "";
+    document.getElementById("crm-selected-email").textContent = lead.email || "";
+
+    const websiteEl = document.getElementById("crm-selected-website");
+    if (websiteEl) {
+      if (lead.website) {
+        let url = lead.website.trim();
+        if (url && !/^https?:\/\//i.test(url)) {
+          url = "https://" + url;
         }
+        websiteEl.textContent = url;
+        websiteEl.href = url;
+        websiteEl.style.pointerEvents = "auto";
+        websiteEl.style.opacity = "1";
+      } else {
+        websiteEl.textContent = "";
+        websiteEl.removeAttribute("href");
+        websiteEl.style.pointerEvents = "none";
+        websiteEl.style.opacity = "0.6";
+      }
+    }
 
-        for (const entry of entries) {
-          const item = document.createElement("div");
-          item.className = "crm-timeline-item";
+    document.getElementById("crm-selected-next").textContent = formatDateTime(lead.nextCall);
 
-          const title = document.createElement("div");
-          title.className = "crm-timeline-title";
-          title.textContent = entry.outcome || "Note";
+    // Reset call note + next
+    document.getElementById("crm-call-note").value = "";
+    document.getElementById("crm-call-next").value = "";
 
-          const meta = document.createElement("div");
-          meta.className = "crm-timeline-meta";
-          meta.textContent = new Date(entry.timestamp).toLocaleString();
+    // Highlight active row
+    for (const row of rowContainer.querySelectorAll(".crm-lead-row")) {
+      row.classList.toggle("active", row.dataset.id === id);
+    }
 
-          item.appendChild(title);
-          item.appendChild(meta);
+    renderTimeline(lead);
+    // Also sync form with selected lead for edits
+    fillFormWithLead(lead);
+  }
 
-          if (entry.note) {
-            const note = document.createElement("div");
-            note.className = "crm-timeline-note";
-            note.textContent = entry.note;
-            item.appendChild(note);
-          }
+  function renderTimeline(lead) {
+    const timelineEl = document.getElementById("crm-timeline");
+    if (!timelineEl) return;
+    timelineEl.innerHTML = "";
 
-          timelineEl.appendChild(item);
-        }
+    const entries = (lead.timeline || []).slice().sort((a, b) => {
+      return new Date(b.timestamp) - new Date(a.timestamp);
+    });
+
+    if (!entries.length) {
+      const empty = document.createElement("div");
+      empty.className = "crm-empty";
+      empty.textContent = "No calls logged yet.";
+      timelineEl.appendChild(empty);
+      return;
+    }
+
+    for (const entry of entries) {
+      const item = document.createElement("div");
+      item.className = "crm-timeline-item";
+
+      const title = document.createElement("div");
+      title.className = "crm-timeline-title";
+      title.textContent = entry.outcome || "Note";
+
+      const meta = document.createElement("div");
+      meta.className = "crm-timeline-meta";
+      meta.textContent = new Date(entry.timestamp).toLocaleString();
+
+      item.appendChild(title);
+      item.appendChild(meta);
+
+      if (entry.note) {
+        const note = document.createElement("div");
+        note.className = "crm-timeline-note";
+        note.textContent = entry.note;
+        item.appendChild(note);
       }
 
-      function fillFormWithLead(lead) {
-        document.getElementById("lead-id").value = lead.id;
+      timelineEl.appendChild(item);
+    }
+  }
 
-        const fullName = lead.name || "";
-        let first = lead.firstName || "";
-        let last = lead.lastName || "";
+  function fillFormWithLead(lead) {
+    document.getElementById("lead-id").value = lead.id;
 
-        if (!first && fullName) {
-          const parts = fullName.split(" ");
-          first = parts[0] || "";
-          last = parts.slice(1).join(" ");
-        }
+    const fullName = lead.name || "";
+    let first = lead.firstName || "";
+    let last = lead.lastName || "";
 
-        document.getElementById("lead-first-name").value = first || "";
-        document.getElementById("lead-last-name").value = last || "";
+    if (!first && fullName) {
+      const parts = fullName.split(" ");
+      first = parts[0] || "";
+      last = parts.slice(1).join(" ");
+    }
 
-        document.getElementById("lead-company").value = lead.company || "";
-        document.getElementById("lead-phone").value = lead.phone || "";
-        document.getElementById("lead-email").value = lead.email || "";
-        document.getElementById("lead-website").value = lead.website || "";
-        document.getElementById("lead-source").value = lead.source || "";
-        document.getElementById("lead-status").value = lead.status || "New";
-        document.getElementById("lead-priority").value = lead.priority || "Normal";
-        document.getElementById("lead-timezone").value = lead.timezone || "";
-        document.getElementById("lead-next-call").value = lead.nextCall || "";
-        document.getElementById("lead-notes").value = lead.notes || "";
-        document.getElementById("crm-form-mode-tag").textContent = "Editing";
-        document.getElementById("crm-form-submit-label").textContent = "Update Lead";
+    document.getElementById("lead-first-name").value = first || "";
+    document.getElementById("lead-last-name").value = last || "";
+
+    document.getElementById("lead-company").value = lead.company || "";
+    document.getElementById("lead-phone").value = lead.phone || "";
+    document.getElementById("lead-email").value = lead.email || "";
+    document.getElementById("lead-website").value = lead.website || "";
+    document.getElementById("lead-source").value = lead.source || "";
+    document.getElementById("lead-status").value = lead.status || "New";
+    document.getElementById("lead-priority").value = lead.priority || "Normal";
+    document.getElementById("lead-timezone").value = lead.timezone || "";
+    document.getElementById("lead-next-call").value = lead.nextCall || "";
+    document.getElementById("lead-notes").value = lead.notes || "";
+    document.getElementById("crm-form-mode-tag").textContent = "Editing";
+    document.getElementById("crm-form-submit-label").textContent = "Update Lead";
+  }
+
+  function resetForm() {
+    selectedId = null;
+    document.getElementById("lead-id").value = "";
+    document.getElementById("lead-first-name").value = "";
+    document.getElementById("lead-last-name").value = "";
+    document.getElementById("lead-company").value = "";
+    document.getElementById("lead-phone").value = "";
+    document.getElementById("lead-email").value = "";
+    document.getElementById("lead-website").value = "";
+    document.getElementById("lead-source").value = "";
+    document.getElementById("lead-status").value = "New";
+    document.getElementById("lead-priority").value = "Normal";
+    document.getElementById("lead-timezone").value = "";
+    document.getElementById("lead-next-call").value = "";
+    document.getElementById("lead-notes").value = "";
+    document.getElementById("crm-form-mode-tag").textContent = "New";
+    document.getElementById("crm-form-submit-label").textContent = "Save Lead";
+
+    const wrapper = document.getElementById("crm-selected-wrapper");
+    const hint = document.getElementById("crm-call-hint");
+    const label = document.getElementById("crm-selected-label");
+    const timeline = document.getElementById("crm-timeline");
+    const rowContainer = document.getElementById("crm-lead-list-body");
+
+    if (wrapper && hint && label && timeline && rowContainer) {
+      wrapper.style.display = "none";
+      hint.style.display = "";
+      label.textContent = "No lead selected";
+      timeline.innerHTML = '<div class="crm-empty">No calls logged yet.</div>';
+
+      for (const row of rowContainer.querySelectorAll(".crm-lead-row")) {
+        row.classList.remove("active");
       }
+    }
+  }
+})();
 
-      function resetForm() {
-        selectedId = null;
-        document.getElementById("lead-id").value = "";
-        document.getElementById("lead-first-name").value = "";
-        document.getElementById("lead-last-name").value = "";
-        document.getElementById("lead-company").value = "";
-        document.getElementById("lead-phone").value = "";
-        document.getElementById("lead-email").value = "";
-        document.getElementById("lead-website").value = "";
-        document.getElementById("lead-source").value = "";
-        document.getElementById("lead-status").value = "New";
-        document.getElementById("lead-priority").value = "Normal";
-        document.getElementById("lead-timezone").value = "";
-        document.getElementById("lead-next-call").value = "";
-        document.getElementById("lead-notes").value = "";
-        document.getElementById("crm-form-mode-tag").textContent = "New";
-        document.getElementById("crm-form-submit-label").textContent = "Save Lead";
-
-        const wrapper = document.getElementById("crm-selected-wrapper");
-        const hint = document.getElementById("crm-call-hint");
-        const label = document.getElementById("crm-selected-label");
-        const timeline = document.getElementById("crm-timeline");
-        const rowContainer = document.getElementById("crm-lead-list-body");
-
-        if (wrapper && hint && label && timeline && rowContainer) {
-          wrapper.style.display = "none";
-          hint.style.display = "";
-          label.textContent = "No lead selected";
-          timeline.innerHTML = '<div class="crm-empty">No calls logged yet.</div>';
-
-          for (const row of rowContainer.querySelectorAll(".crm-lead-row")) {
-            row.classList.remove("active");
-          }
-        }
-      }
 
       // --- Counts, snapshot & analytics ---
       function updateCountsAndSnapshot() {
