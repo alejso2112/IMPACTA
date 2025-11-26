@@ -962,93 +962,10 @@
   </footer>
 
   <script>
-// --- CSV IMPORTER ---
-document.getElementById("crm-import").addEventListener("click", function () {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".csv";
 
-  input.onchange = function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-      try {
-        const text = e.target.result;
-
-        // Parse CSV → Array of objects
-        const rows = text.trim().split("\n");
-        const headers = rows.shift().split(",").map(h => h.trim());
-
-        const imported = rows.map(row => {
-          const values = row.split(",").map(v => v.trim());
-          const obj = {};
-          headers.forEach((h, i) => (obj[h] = values[i] || ""));
-          return obj;
-        });
-
-        // Convert CSV → CRM lead format
-        const normalized = imported.map((r) => ({
-          id: crypto.randomUUID(),
-          firstName: r.firstName || "",
-          lastName: r.lastName || "",
-          name: `${r.firstName || ""} ${r.lastName || ""}`.trim(),
-          company: r.company || "",
-          phone: r.phone || "",
-          email: r.email || "",
-          website: r.website || "",
-          source: r.source || "",
-          status: r.status || "New",
-          priority: r.priority || "Normal",
-          timezone: "",
-          nextCall: r.nextCall || "",
-          notes: r.notes || "",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          timeline: []
-        }));
-
-        // If logged in, also send to Supabase
-        if (currentUser) {
-          normalized.forEach(async (lead) => {
-            await upsertLeadToSupabase(lead);
-          });
-        }
-
-        // Add to local CRM
-        leads = leads.concat(normalized);
-        saveLeads();
-        renderLeadList();
-        resetForm();
-
-        alert("CSV imported successfully!");
-      } catch (err) {
-        console.error(err);
-        alert("Could not read CSV file. Make sure the format is correct.");
-      }
-    };
-
-    reader.readAsText(file);
-  };
-
-  input.click();
-});
-
-// Export JSON
-document.getElementById("crm-export").addEventListener("click", function () {
-  const dataStr =
-    "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(leads, null, 2));
-  const a = document.createElement("a");
-  a.setAttribute("href", dataStr);
-  a.setAttribute("download", "impacta-calling-crm.json");
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-});
 
 let currentUser = null;
+
 // === Simple Calling CRM (localStorage only) ===
 (function () {
   const STORAGE_KEY = "impacta_calling_crm_v1";
@@ -1304,6 +1221,84 @@ let currentUser = null;
     const filterStatus = document.getElementById("crm-filter-status").value;
     const filterPriority = document.getElementById("crm-filter-priority").value;
 
+            // CSV IMPORT (replaces old JSON import)
+        const importBtn = document.getElementById("crm-import");
+        if (importBtn) {
+          importBtn.addEventListener("click", function () {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".csv";
+
+            input.onchange = function (event) {
+              const file = event.target.files[0];
+              if (!file) return;
+
+              const reader = new FileReader();
+
+              reader.onload = async function (e) {
+                try {
+                  const text = e.target.result;
+
+                  // Parse CSV → Array of objects
+                  const rows = text.trim().split("\n");
+                  const headers = rows.shift().split(",").map(h => h.trim());
+
+                  const imported = rows.map(row => {
+                    const values = row.split(",").map(v => v.trim());
+                    const obj = {};
+                    headers.forEach((h, i) => (obj[h] = values[i] || ""));
+                    return obj;
+                  });
+
+                  // Convert CSV → CRM lead format
+                  const normalized = imported.map((r) => ({
+                    id: crypto.randomUUID(),
+                    firstName: r.firstName || "",
+                    lastName: r.lastName || "",
+                    name: `${r.firstName || ""} ${r.lastName || ""}`.trim(),
+                    company: r.company || "",
+                    phone: r.phone || "",
+                    email: r.email || "",
+                    website: r.website || "",
+                    source: r.source || "",
+                    status: r.status || "New",
+                    priority: r.priority || "Normal",
+                    timezone: "",
+                    nextCall: r.nextCall || "",
+                    notes: r.notes || "",
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    timeline: []
+                  }));
+
+                  // If logged in, also send to Supabase
+                  if (currentUser) {
+                    for (const lead of normalized) {
+                      await upsertLeadToSupabase(lead);
+                    }
+                  }
+
+                  // Add to local CRM
+                  leads = leads.concat(normalized);
+                  saveLeads();
+                  renderLeadList();
+                  resetForm();
+
+                  alert("CSV imported successfully!");
+                } catch (err) {
+                  console.error(err);
+                  alert("Could not read CSV file. Make sure the format is correct.");
+                }
+              };
+
+              reader.readAsText(file);
+            };
+
+            input.click();
+          });
+        }
+
+        
     // Calling View controls
     const callingToggleEl = document.getElementById("crm-calling-toggle");
     const fromEl = document.getElementById("crm-callview-from");
