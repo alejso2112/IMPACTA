@@ -263,6 +263,22 @@
       z-index: 1;
     }
 
+    .crm-lead-header-cell {
+      background: none;
+      border: none;
+      padding: 0;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .crm-lead-header-cell:hover {
+      text-decoration: underline;
+    }
+
     .crm-lead-list-body {
       overflow-y: auto;
       max-height: 440px;
@@ -407,7 +423,7 @@
 
     .crm-small-label {
       font-size: 13px;
-      color: #3a4656; /* darker gray for easier reading */
+      color: #3a4656;
       font-weight: 600;
     }
 
@@ -616,11 +632,11 @@
 
       <div class="crm-lead-list">
         <div class="crm-lead-list-header">
-          <div>Contact</div>
-          <div>Phone</div>
-          <div>Status</div>
-          <div>Next Call</div>
-          <div>Priority</div>
+          <button type="button" class="crm-lead-header-cell" data-sort="company">Company</button>
+          <button type="button" class="crm-lead-header-cell" data-sort="phone">Phone</button>
+          <button type="button" class="crm-lead-header-cell" data-sort="status">Status</button>
+          <button type="button" class="crm-lead-header-cell" data-sort="nextCall">Next Call</button>
+          <button type="button" class="crm-lead-header-cell" data-sort="priority">Priority</button>
         </div>
         <div id="crm-lead-list-body" class="crm-lead-list-body">
           <div class="crm-empty">No leads yet. Add one on the left.</div>
@@ -942,6 +958,8 @@
     /** @type {Array} */
     let leads = [];
     let selectedId = null;
+    let sortField = "nextCall";
+    let sortDirection = "asc";
 
     // --- Helpers ---
     function saveLeads() {
@@ -1006,6 +1024,10 @@
     function renderTodayLabel() {
       const el = document.getElementById("crm-today");
       if (el) el.textContent = todayString();
+    }
+
+    function normalizeString(val) {
+      return (val || "").toString().toLowerCase();
     }
 
     // --- Reporting helpers ---
@@ -1190,12 +1212,42 @@
         return;
       }
 
-      // Sort by nextCall ascending, with empty nextCall at bottom
+      // Sorting
       filtered.sort((a, b) => {
-        if (!a.nextCall && !b.nextCall) return 0;
-        if (!a.nextCall) return 1;
-        if (!b.nextCall) return -1;
-        return new Date(a.nextCall) - new Date(b.nextCall);
+        let av, bv;
+
+        switch (sortField) {
+          case "company":
+            av = normalizeString(a.company || a.source || a.name || "");
+            bv = normalizeString(b.company || b.source || b.name || "");
+            break;
+          case "phone":
+            av = normalizeString(a.phone);
+            bv = normalizeString(b.phone);
+            break;
+          case "status":
+            av = normalizeString(a.status);
+            bv = normalizeString(b.status);
+            break;
+          case "priority":
+            av = normalizeString(a.priority);
+            bv = normalizeString(b.priority);
+            break;
+          case "nextCall":
+          default: {
+            const aHas = !!a.nextCall;
+            const bHas = !!b.nextCall;
+            if (!aHas && !bHas) return 0;
+            if (!aHas) return sortDirection === "asc" ? 1 : -1;
+            if (!bHas) return sortDirection === "asc" ? -1 : 1;
+            const diff = new Date(a.nextCall) - new Date(b.nextCall);
+            return sortDirection === "asc" ? diff : -diff;
+          }
+        }
+
+        if (av < bv) return sortDirection === "asc" ? -1 : 1;
+        if (av > bv) return sortDirection === "asc" ? 1 : -1;
+        return 0;
       });
 
       for (const lead of filtered) {
@@ -1209,12 +1261,23 @@
         const nameCell = document.createElement("div");
         const nameDiv = document.createElement("div");
         nameDiv.className = "crm-lead-name";
-        nameDiv.textContent = lead.name || "(No name)";
-        const companyDiv = document.createElement("div");
-        companyDiv.className = "crm-lead-company";
-        companyDiv.textContent = lead.company || lead.source || "";
+
+        const mainCompany =
+          lead.company || lead.source || lead.name || "(No company)";
+
+        nameDiv.textContent = mainCompany;
+
+        const contactDiv = document.createElement("div");
+        contactDiv.className = "crm-lead-company";
+
+        let contactName = lead.name || "";
+        if (!contactName && (lead.firstName || lead.lastName)) {
+          contactName = [lead.firstName || "", lead.lastName || ""].filter(Boolean).join(" ");
+        }
+        contactDiv.textContent = contactName;
+
         nameCell.appendChild(nameDiv);
-        nameCell.appendChild(companyDiv);
+        nameCell.appendChild(contactDiv);
 
         const phoneCell = document.createElement("div");
         phoneCell.className = "crm-mono";
@@ -1273,10 +1336,19 @@
       if (hint) hint.style.display = "none";
       label.textContent = "Active Lead";
 
-      // Name / company
-      document.getElementById("crm-selected-name").textContent = lead.name || "(No name)";
-      document.getElementById("crm-selected-company").textContent =
-        lead.company || lead.source || "";
+      const selectedNameEl = document.getElementById("crm-selected-name");
+      const selectedCompanyEl = document.getElementById("crm-selected-company");
+
+      const mainCompany =
+        lead.company || lead.source || lead.name || "(No company)";
+
+      let contactName = lead.name || "";
+      if (!contactName && (lead.firstName || lead.lastName)) {
+        contactName = [lead.firstName || "", lead.lastName || ""].filter(Boolean).join(" ");
+      }
+
+      selectedNameEl.textContent = mainCompany;
+      selectedCompanyEl.textContent = contactName;
 
       // Status pill
       const pill = document.getElementById("crm-selected-status-pill");
@@ -1624,6 +1696,21 @@
       // Re-render when From/To change
       if (fromEl) fromEl.addEventListener("change", renderLeadList);
       if (toEl) toEl.addEventListener("change", renderLeadList);
+
+      // Sort header clicks
+      document.querySelectorAll(".crm-lead-header-cell").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const field = btn.dataset.sort;
+          if (!field) return;
+          if (sortField === field) {
+            sortDirection = sortDirection === "asc" ? "desc" : "asc";
+          } else {
+            sortField = field;
+            sortDirection = "asc";
+          }
+          renderLeadList();
+        });
+      });
 
       renderLeadList();
       updateCountsAndSnapshot();
